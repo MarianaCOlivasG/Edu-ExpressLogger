@@ -14,4 +14,6 @@ export const envs = {
   DB_USERNAME: get('DB_USERNAME').required().asString(),
   DB_NAME: get('DB_NAME').required().asString(),
 
+  JWT_SEED: get('JWT_SEED').required().asString(),
+
 };

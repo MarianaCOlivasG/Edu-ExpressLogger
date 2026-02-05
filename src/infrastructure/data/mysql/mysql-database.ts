@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-import { PostEntity } from './entities';
+import { PostEntity, UserEntity } from './entities';
 
 export interface MySQLOptions {
   host: string;
@@ -30,7 +30,8 @@ export class MySQLDatabase {
       logging: ['error'],
 
       entities: [
-        PostEntity
+        PostEntity,
+        UserEntity,
       ],
 
       extra: {
