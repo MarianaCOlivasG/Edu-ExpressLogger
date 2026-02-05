@@ -52,12 +52,12 @@ export class PostRepositoryImpl implements PostRepository {
   // FIND BY FILTERS + PAGINATION
   async findByFilters( filters: GetPostsFilterDto ): Promise<PagedResult<Post>> {
 
-    const { title } = filters;
+    const { query_search } = filters;
 
     const [rows, total] = await this.repo.findAndCount({
       where: {
         is_deleted: false,
-        ...(title && { title: Like(`%${title}%`) })
+        ...(query_search && { title: Like(`%${query_search}%`) })
       },
       take: filters.pagination!.pageSize,
       skip: filters.pagination!.offset,

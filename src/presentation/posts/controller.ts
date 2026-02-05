@@ -67,7 +67,6 @@ export class PostController {
         message: error
       });
     }
-
     new GetPostsUseCase(this.repository)
       .execute(filters!)
       .then(result =>

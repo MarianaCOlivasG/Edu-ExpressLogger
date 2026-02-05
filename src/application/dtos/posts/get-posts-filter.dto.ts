@@ -4,7 +4,7 @@ import { PaginationDto } from "../pagination/pagination.dto";
 export class GetPostsFilterDto {
 
   private constructor(
-    public readonly title?: string,
+    public readonly query_search?: string,
     public readonly pagination?: PaginationDto
   ) {}
 
@@ -14,10 +14,10 @@ export class GetPostsFilterDto {
       return ['Invalid query params'];
     }
 
-    const title = obj.title?.toString();
+    const query_search = obj.query_search?.toString().trim();
 
     const [, pagination] = PaginationDto.create(obj);
 
-    return [ undefined, new GetPostsFilterDto(title, pagination)];
+    return [ undefined, new GetPostsFilterDto(query_search, pagination)];
   }
 }
