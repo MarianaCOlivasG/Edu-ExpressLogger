@@ -6,6 +6,7 @@ import http from 'http';
 import cors from 'cors';
 import morgan from 'morgan';
 import { errorMiddleware } from './middlewares/error.middleware';
+import { setupSwagger } from '../infrastructure/swagger/swagger';
 
 interface Options {
     port?: number;
@@ -35,6 +36,9 @@ export class Server {
             // Middleware
             this.app.use(express.json());
             this.app.use(express.urlencoded({ extended: true }));
+
+            setupSwagger(this.app)
+            
             this.app.use(cors());
 
             this.app.use(morgan('dev'));
