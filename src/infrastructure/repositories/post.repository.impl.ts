@@ -5,12 +5,12 @@ import { PostEntity } from '../data/mysql/entities/post.entity';
 
 import { PostRepository } from '../../application/repositories/post.repository';
 import { GetPostsFilterDto } from '../../application/dtos/posts/get-posts-filter.dto';
-import { PaginationDto } from '../../application/dtos/pagination/pagination.dto';
 import { PagedResult } from '../../application/dtos/pagination/paged-result';
 
 import { PostMapper } from '../mappers/post.mapper';
 import { Post } from '../../domain/entities/post.entity';
 import { CustomError } from '../../application/errors/custom.error';
+import { QueryRunner } from 'typeorm';
 
 export class PostRepositoryImpl implements PostRepository {
 
@@ -96,4 +96,53 @@ export class PostRepositoryImpl implements PostRepository {
 
     return rows.map(PostMapper.toDomain);
   }
+
+
+    async createWithAudit(post: Post, createdBy: string): Promise<Post> {
+
+    const queryRunner: QueryRunner =
+      MySQLDatabase.getDataSource().createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+
+      const postEntity = queryRunner.manager.create(
+        PostEntity,
+        PostMapper.toPersistence(post)
+      );
+
+      const savedPost = await queryRunner.manager.save(postEntity);
+
+      // const audit = queryRunner.manager.create(PostAuditEntity, {
+      //   post_id: savedPost.id,
+      //   action: 'CREATE',
+      //   created_by: createdBy,
+      // });
+
+      // await queryRunner.manager.save(audit);
+
+      await queryRunner.commitTransaction();
+
+      return PostMapper.toDomain(savedPost);
+
+    } catch (error: any) {
+
+      await queryRunner.rollbackTransaction();
+
+      if (error.code === 'ER_DUP_ENTRY') {
+        throw CustomError.badRequest('Post body must be unique');
+      }
+
+      throw CustomError.internalServer();
+
+    } finally {
+
+      // 🔚 Liberar conexión SIEMPRE
+      await queryRunner.release();
+    }
+  }
+
+
 }
